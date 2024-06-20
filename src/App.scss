@@ -1,22 +1,24 @@
 .container {
-  max-width: 600px;
-  margin: auto;
+  width: 600px;
+  margin: 20px auto;
   padding: 20px;
   text-align: center;
+  background: lightblue;
+  .form {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+  
+    input {
+      padding: 10px;
+      margin-right: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      width: 70%;
+    }
 }
 
-.form {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 20px;
 
-  input {
-    padding: 10px;
-    margin-right: 10px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    width: 70%;
-  }
 
   button {
     padding: 10px 20px;
@@ -25,9 +27,12 @@
     background-color: #f25f3a;
     color: white;
     cursor: pointer;
+    &:hover{
+      background: rgb(223, 112, 131);
+      transition: all 0.3s ease-in-out;
+    }
   }
-}
-
+  
 .jokes {
   .joke {
     display: flex;
@@ -50,11 +55,13 @@
     .joke-buttons {
       button {
         margin: 0 5px;
-        background: none;
+        background: blue;
         border: none;
         font-size: 20px;
         cursor: pointer;
       }
     }
   }
+}
+
 }

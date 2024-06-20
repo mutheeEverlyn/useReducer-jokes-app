@@ -1,4 +1,4 @@
-import React, { useReducer } from 'react';
+import React, { useReducer, useEffect } from 'react';
 import './App.scss';
 
 interface Joke {
@@ -11,7 +11,8 @@ type State = Joke[];
 
 type Action = 
   | { type: 'ADD_JOKE'; joke: string }
-  | { type: 'UPDATE_RATE'; id: number; rate: number };
+  | { type: 'UPDATE_RATE'; id: number; rate: number }
+  | { type: 'SET_JOKES'; jokes: Joke[] };
 
 const initialState: State = [
   { id: 1, joke: 'What do you call a very small valentine? A valen-tiny!', rate: 3 },
@@ -25,11 +26,17 @@ const reducer = (state: State, action: Action): State => {
   switch (action.type) {
     case 'ADD_JOKE':
       const newJoke: Joke = { id: state.length + 1, joke: action.joke, rate: 0 };
-      return [...state, newJoke];
+      const updatedState = [...state, newJoke];
+      localStorage.setItem('jokes', JSON.stringify(updatedState));
+      return updatedState;
     case 'UPDATE_RATE':
-      return state.map(joke => 
+      const stateWithUpdatedRate = state.map(joke => 
         joke.id === action.id ? { ...joke, rate: action.rate } : joke
       );
+      localStorage.setItem('jokes', JSON.stringify(stateWithUpdatedRate));
+      return stateWithUpdatedRate;
+    case 'SET_JOKES':
+      return action.jokes;
     default:
       return state;
   }
@@ -37,6 +44,14 @@ const reducer = (state: State, action: Action): State => {
 
 const App: React.FC = () => {
   const [jokes, dispatch] = useReducer(reducer, initialState);
+
+  // Load jokes from localStorage on mount
+  useEffect(() => {
+    const storedJokes = localStorage.getItem('jokes');
+    if (storedJokes) {
+      dispatch({ type: 'SET_JOKES', jokes: JSON.parse(storedJokes) });
+    }
+  }, []);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -55,7 +70,7 @@ const App: React.FC = () => {
 
   return (
     <div className="container">
-      <h2>Jokes for you 💀</h2>
+      <h2>Sample jokes</h2>
       <form className="form" onSubmit={handleSubmit}>
         <input type="text" placeholder="Add a joke" />
         <button type="submit">Add Joke</button>
@@ -66,8 +81,8 @@ const App: React.FC = () => {
             <div className="joke-text">{joke.joke}</div>
             <div className="text">{joke.rate}</div>
             <div className="joke-buttons">
-              <button onClick={() => updateRate(joke.id, joke.rate + 1)}>👍</button>
-              <button onClick={() => updateRate(joke.id, joke.rate - 1)}>👎</button>
+              <button onClick={() => updateRate(joke.id, joke.rate + 1)}>⬆</button>
+              <button onClick={() => updateRate(joke.id, joke.rate - 1)}>⬇</button>
             </div>
           </div>
         ))}
