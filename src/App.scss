@@ -1,9 +1,12 @@
+body{
+  justify-content: center;
 .container {
   width: 600px;
   margin: 20px auto;
   padding: 20px;
   text-align: center;
   background: lightblue;
+ 
   .form {
     display: flex;
     justify-content: center;
@@ -17,7 +20,7 @@
       width: 70%;
     }
 }
-
+}
 
 
   button {
@@ -64,4 +67,12 @@
   }
 }
 
+}
+@media(max-width: 750px){
+  body{
+    width: 100%;
+    .container{
+      width: 100%;
+    }
+  }
 }

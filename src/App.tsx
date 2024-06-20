@@ -12,7 +12,9 @@ type State = Joke[];
 type Action = 
   | { type: 'ADD_JOKE'; joke: string }
   | { type: 'UPDATE_RATE'; id: number; rate: number }
-  | { type: 'SET_JOKES'; jokes: Joke[] };
+  | { type: 'SET_JOKES'; jokes: Joke[] }
+  | { type: 'DELETE_JOKE'; id: number };
+
 
 const initialState: State = [
   { id: 1, joke: 'What do you call a very small valentine? A valen-tiny!', rate: 3 },
@@ -37,6 +39,10 @@ const reducer = (state: State, action: Action): State => {
       return stateWithUpdatedRate;
     case 'SET_JOKES':
       return action.jokes;
+    case 'DELETE_JOKE':
+      const updatedStateAfterDelete = state.filter(joke => joke.id !== action.id);
+      localStorage.setItem('jokes', JSON.stringify(updatedStateAfterDelete));
+      return updatedStateAfterDelete;
     default:
       return state;
   }
@@ -45,7 +51,7 @@ const reducer = (state: State, action: Action): State => {
 const App: React.FC = () => {
   const [jokes, dispatch] = useReducer(reducer, initialState);
 
-  // Load jokes from localStorage on mount
+  // Load jokes from localStorage 
   useEffect(() => {
     const storedJokes = localStorage.getItem('jokes');
     if (storedJokes) {
@@ -68,6 +74,10 @@ const App: React.FC = () => {
     dispatch({ type: 'UPDATE_RATE', id, rate });
   };
 
+  const deleteJoke = (id: number) => {
+    dispatch({ type: 'DELETE_JOKE', id });
+  };
+
   return (
     <div className="container">
       <h2>Sample jokes</h2>
@@ -83,6 +93,7 @@ const App: React.FC = () => {
             <div className="joke-buttons">
               <button onClick={() => updateRate(joke.id, joke.rate + 1)}>⬆</button>
               <button onClick={() => updateRate(joke.id, joke.rate - 1)}>⬇</button>
+              <button onClick={() => deleteJoke(joke.id)}>Delete</button>
             </div>
           </div>
         ))}
