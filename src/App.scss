@@ -1,0 +1,60 @@
+.container {
+  max-width: 600px;
+  margin: auto;
+  padding: 20px;
+  text-align: center;
+}
+
+.form {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+
+  input {
+    padding: 10px;
+    margin-right: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    width: 70%;
+  }
+
+  button {
+    padding: 10px 20px;
+    border-radius: 5px;
+    border: none;
+    background-color: #f25f3a;
+    color: white;
+    cursor: pointer;
+  }
+}
+
+.jokes {
+  .joke {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #f9f9f9;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+
+    .joke-text {
+      flex: 1;
+    }
+
+    .text {
+      margin-right: 10px;
+    }
+
+    .joke-buttons {
+      button {
+        margin: 0 5px;
+        background: none;
+        border: none;
+        font-size: 20px;
+        cursor: pointer;
+      }
+    }
+  }
+}
