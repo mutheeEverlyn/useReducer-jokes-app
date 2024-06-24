@@ -1,5 +1,6 @@
-import React, { useReducer, useEffect } from 'react';
+import React, { useReducer, useEffect, useState } from 'react';
 import './App.scss';
+import useLocalStorage from './components/useLocalStorage';
 
 interface Joke {
   id: number;
@@ -13,8 +14,8 @@ type Action =
   | { type: 'ADD_JOKE'; joke: string }
   | { type: 'UPDATE_RATE'; id: number; rate: number }
   | { type: 'SET_JOKES'; jokes: Joke[] }
-  | { type: 'DELETE_JOKE'; id: number };
-
+  | { type: 'DELETE_JOKE'; id: number }
+  | { type: 'UPDATE_JOKE'; id: number; joke: string };
 
 const initialState: State = [
   { id: 1, joke: 'What do you call a very small valentine? A valen-tiny!', rate: 3 },
@@ -28,36 +29,33 @@ const reducer = (state: State, action: Action): State => {
   switch (action.type) {
     case 'ADD_JOKE':
       const newJoke: Joke = { id: state.length + 1, joke: action.joke, rate: 0 };
-      const updatedState = [...state, newJoke];
-      localStorage.setItem('jokes', JSON.stringify(updatedState));
-      return updatedState;
+      return [...state, newJoke];
     case 'UPDATE_RATE':
-      const stateWithUpdatedRate = state.map(joke => 
+      return state.map(joke => 
         joke.id === action.id ? { ...joke, rate: action.rate } : joke
       );
-      localStorage.setItem('jokes', JSON.stringify(stateWithUpdatedRate));
-      return stateWithUpdatedRate;
     case 'SET_JOKES':
       return action.jokes;
     case 'DELETE_JOKE':
-      const updatedStateAfterDelete = state.filter(joke => joke.id !== action.id);
-      localStorage.setItem('jokes', JSON.stringify(updatedStateAfterDelete));
-      return updatedStateAfterDelete;
+      return state.filter(joke => joke.id !== action.id);
+    case 'UPDATE_JOKE':
+      return state.map(joke => 
+        joke.id === action.id ? { ...joke, joke: action.joke } : joke
+      );
     default:
       return state;
   }
 };
 
 const App: React.FC = () => {
-  const [jokes, dispatch] = useReducer(reducer, initialState);
+  const [storedJokes, setStoredJokes] = useLocalStorage<Joke[]>('jokes', initialState);
+  const [jokes, dispatch] = useReducer(reducer, storedJokes);
+  const [editId, setEditId] = useState<number | null>(null);
+  const [editText, setEditText] = useState<string>('');
 
-  // Load jokes from localStorage 
   useEffect(() => {
-    const storedJokes = localStorage.getItem('jokes');
-    if (storedJokes) {
-      dispatch({ type: 'SET_JOKES', jokes: JSON.parse(storedJokes) });
-    }
-  }, []);
+    setStoredJokes(jokes);
+  }, [jokes, setStoredJokes]);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -78,6 +76,20 @@ const App: React.FC = () => {
     dispatch({ type: 'DELETE_JOKE', id });
   };
 
+  const editJoke = (id: number, joke: string) => {
+    setEditId(id);
+    setEditText(joke);
+  };
+
+  const handleEditSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (editId !== null && editText.trim() !== '') {
+      dispatch({ type: 'UPDATE_JOKE', id: editId, joke: editText });
+      setEditId(null);
+      setEditText('');
+    }
+  };
+
   return (
     <div className="container">
       <h2>Sample jokes</h2>
@@ -94,7 +106,19 @@ const App: React.FC = () => {
               <button onClick={() => updateRate(joke.id, joke.rate + 1)}>⬆</button>
               <button onClick={() => updateRate(joke.id, joke.rate - 1)}>⬇</button>
               <button onClick={() => deleteJoke(joke.id)}>Delete</button>
+              <button onClick={() => editJoke(joke.id, joke.joke)}>Edit</button>
             </div>
+            {editId === joke.id && (
+              <form className="form" onSubmit={handleEditSubmit}>
+                <input 
+                  type="text" 
+                  value={editText} 
+                  onChange={(e) => setEditText(e.target.value)} 
+                  placeholder="Edit joke" 
+                />
+                <button type="submit">Update Joke</button>
+              </form>
+            )}
           </div>
         ))}
       </div>
